@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <random>
 
 using std::cout;
 using std::endl;
@@ -97,6 +98,25 @@ public:
     }
 };
 
+class Lucky {
+    public:
+    
+    bool throw_coin() const {
+        std::random_device randomDevice;
+        std::mt19937 generator(randomDevice());
+        std::bernoulli_distribution coinFlip(0.5);
+
+        bool cara = coinFlip(generator);
+
+        if (cara) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+};
+
 int main()
 {
     Player player("idr4");
@@ -190,7 +210,42 @@ int main()
 
         }
         player.displayStatus();
-        cout << "\nA la espera de mas aventura!" << endl;
+
+        Room treasureRoom("Sala del Tesoro", "Una sala brillante llena de oro y joyas.");
+
+        cout << "Te diriges la nueva sala: " << treasureRoom.getName() << endl;
+        cout << treasureRoom.getDescription() << endl;
+
+
+        cout << "Antes de pasar la puerta de entrada de la sala, te encuentras con el problema de q esta cerrada y no tienes la llave." << endl;
+        if(player.hasLockpickItem()) {
+            cout << "Usas la Ganzua para abrir la puerta? (S o N)" << endl;
+            
+            string userInput;
+
+            cin >> userInput; 
+
+            if( userInput == "s" && Lucky().throw_coin()) {
+
+                cout << "Tienes suerte! La puerta se abre sin problemas." << endl;
+                cout << "Luteas la mazmorra con exito!" << endl;
+                player.addScore(50);
+                cout << "Has escapado de la mazmorra!" << endl;
+                 
+            } else if( userInput == "S") {
+
+                cout << "La Ganzua se rompe al intentar abrir la puerta." << endl;
+                player.takenDamage(10);
+                player.displayStatus();
+            }else {
+
+                cout << "Decides no usar la Ganzua y buscar otra salida." << endl;
+            }
+
+        } else {
+            cout << "Nesesitas algo para abrirla..." << endl;
+        }
+
     }
     else if(entranceDir.isValid() && (entranceDir.getKey() == 'S' || entranceDir.getKey() == 's')) {
         cout << "Te diriges hacia: " << entranceDir.getDirection() << endl;
@@ -201,6 +256,9 @@ int main()
     else {
         cout << "Direccion invalida. No puedes avanzar." << endl;
     }
+
+
+    
 
     cout << "\nAventura terminada!" << endl;
     player.displayStatus();
