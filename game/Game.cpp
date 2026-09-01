@@ -1,127 +1,20 @@
+#include "Game.h"
+#include "direction/Direction.h"
 #include <iostream>
-#include <string>
-#include <random>
+#include "player/Player.h"
 
+using std::cin;
 using std::cout;
 using std::endl;
-using std::cin;
-using std::string;
 
-class Direction {
-private:
-    char directionKey;
-    string directionName;
+Game::Game(): player(player), 
+    entrance("Sala de Entrada", "Una sala oscura con 2 pasajes."),
+    corridor("Corredor Oscuro", "Un pasaje angosto, se escuchan goteos de fondo"),
+    treasure("Sala del Tesoro", "Una sala brillante llena de oro y joyas."),
+    lucky(){};
 
-public:
-    Direction(char key){
 
-        if (key == 'W' || key == 'w') {
-            directionName = "Arriba";
-        } else if (key == 'A' || key == 'a') {
-            directionName = "Izquierda";
-        } else if (key == 'S' || key == 's') {
-            directionName = "Abajo";
-        } else if (key == 'D' || key == 'd') {
-            directionName = "Derecha";
-        } else {
-            directionName = "Dirección invalida";
-        }
-        directionKey = key;
-    }
-
-    char getKey() const{ return directionKey; }
-    string getDirection() const { return directionName; }
-    bool isValid() const { return directionName != "Dirección invalida"; }
-};
-
-class Player {
-private:
-    string playerName;
-    int playerHealth;
-    bool playerHasLockpick;
-    bool playerHasCompass;
-    int playerScore;
-
-public:
-    Player(string name)
-        : playerName(name),
-          playerHealth(73),
-          playerHasLockpick(false),
-          playerHasCompass(false),
-          playerScore(0) {}
-
-    string getName() const { return playerName; }
-    int getHealth() const { return playerHealth; }
-    bool hasLockpickItem() const { return playerHasLockpick; }
-    bool hasCompassItem() const { return playerHasCompass; }
-    int getScore() const { return playerScore; }
-
-    void setHealth(int health) { playerHealth = health; }
-    void heal(int amount) { playerHealth += amount; }
-    void takenDamage(int damage) { playerHealth -= damage; }
-    void addScore(int score) { playerScore += score; }
-
-    void pickupLockpick() {
-        playerHasLockpick = true;
-        playerScore++;
-        cout << "Has recogido una Ganzua." << endl;
-    }
-
-    void pickupCompass() {
-       cout << "Has recogido la Brujula." << endl;
-        playerHasCompass = true;
-    }
-
-    void displayStatus() const {
-        cout << "\n---" << playerName << "---" << endl;
-        cout << "Salud: " << playerHealth << endl;
-        cout << "Puntos: " << playerScore << endl;
-        cout << (hasLockpickItem() ? " [Ganzua]" : "") << " | " << (hasCompassItem() ? "[Brujula]" : "") << endl;
-    }
-};
-
-class Room {
-private:
-    string roomName;
-    string roomDescription;
-
-public:
-    Room(string name, string description)
-        : roomName(name), roomDescription(description) {}
-
-    string getName() const {
-        return roomName;
-    }
-
-    string getDescription() const {
-        return roomDescription;
-    }
-};
-
-class Lucky {
-    public:
-    
-    bool throw_coin() const {
-        std::random_device randomDevice;
-        std::mt19937 generator(randomDevice());
-        std::bernoulli_distribution coinFlip(0.5);
-
-        bool cara = coinFlip(generator);
-
-        if (cara) {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-};
-
-int main()
-{
-    Player player("idr4");
-    Room entrance("Sala de Entrada", "Una sala oscura con 2 pasajes.");
-    Room corridor("Corredor Oscuro", "Un pasaje angosto, se escuchan goteos de fondo");
+void Game::run(){
 
     // Backstory
     cout << "\n========================================" << endl;
@@ -143,9 +36,6 @@ int main()
     cout << "y colegas dejen de buscarla." << endl;
     cout << "========================================" << endl;
 
-
-    //entrada
-
     cout << "\n----" << entrance.getName() << "----" << endl;
     cout << entrance.getDescription() << endl;
     cout << "\nVes: " << endl;
@@ -155,7 +45,6 @@ int main()
     char entranceChoice;
     cout << "\nQue direccion tomas?: ";
     cin >> entranceChoice;
-
 
     Direction entranceDir(entranceChoice);
 
@@ -228,6 +117,11 @@ int main()
             if( userInput == "s" && Lucky().throw_coin()) {
 
                 cout << "Tienes suerte! La puerta se abre sin problemas." << endl;
+                
+                cout << "Al entrar sientes un aire tibio que revitaliza tu ser" << endl;
+                player.fullHeal();
+                cout << "recibees una curacion completa" << endl;
+
                 cout << "Luteas la mazmorra con exito!" << endl;
                 player.addScore(50);
                 cout << "Has escapado de la mazmorra!" << endl;
@@ -266,6 +160,4 @@ int main()
     cout << "\nPresiona enter para finalizar!" << endl;
     cin.ignore();
     cin.get();
-
-    return 0;
 }
