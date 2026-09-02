@@ -6,16 +6,37 @@
 using std::cin;
 using std::cout;
 using std::endl;
+Game &Game::getInstance()
+{
+    static Game instance;
+    return instance;
+}
+Game::Game() : player("Idr4"),
+               entrance("Sala de Entrada", "Una sala oscura con 2 pasajes."),
+               corridor("Corredor Oscuro", "Un pasaje angosto, se escuchan goteos de fondo"),
+               treasure("Sala del Tesoro", "Una sala brillante llena de oro y joyas."),
+               gameRunning(true),
+               lucky() {};
 
-Game::Game(): player(player), 
-    entrance("Sala de Entrada", "Una sala oscura con 2 pasajes."),
-    corridor("Corredor Oscuro", "Un pasaje angosto, se escuchan goteos de fondo"),
-    treasure("Sala del Tesoro", "Una sala brillante llena de oro y joyas."),
-    lucky(){};
+bool Game::confirmQuit()
+{
+    char answer;
+    do
+    {
+        cout << "Deseas salir? S/N:" << endl;
+        cin >> answer;
 
+        return answer == 's' || answer == 'S';
 
-void Game::run(){
+    } while (true);
+}
+void Game::stopGame()
+{
 
+    Game::gameRunning = false;
+}
+void Game::run()
+{
     // Backstory
     cout << "\n========================================" << endl;
     cout << "  UN PROFESOR DE GEOGRAFIA PERDIDA EN LAS MAZMORRAS" << endl;
@@ -35,129 +56,182 @@ void Game::run(){
     cout << "\nDebe encontrar la salida antes de que sus alumnos" << endl;
     cout << "y colegas dejen de buscarla." << endl;
     cout << "========================================" << endl;
+    while (Game::gameRunning)
+    {
+        bool atEntrance = true;
+        char entranceChoice;
+        while (Game::gameRunning && atEntrance)
+        {
+            cout << "\n----" << entrance.getName() << "----" << endl;
+            cout << entrance.getDescription() << endl;
+            cout << "\nVes: " << endl;
+            cout << " W - Arriba - Corredor oscuro" << endl;
+            cout << " Q - Salir del juego" << endl;
 
-    cout << "\n----" << entrance.getName() << "----" << endl;
-    cout << entrance.getDescription() << endl;
-    cout << "\nVes: " << endl;
-    cout << " W - Arriba - Corredor oscuro" << endl;
-    cout << " S - Abajo - Muro Bloqueado" << endl;
+            cout << "\nQue direccion tomas?: ";
+            cin >> entranceChoice;
 
-    char entranceChoice;
-    cout << "\nQue direccion tomas?: ";
-    cin >> entranceChoice;
-
-    Direction entranceDir(entranceChoice);
-
-    if(entranceDir.isValid() && entranceDir.getKey() == 'W' || entranceDir.getKey() == 'w') {
-
-        cout << "Te diriges hacia: " << entranceDir.getDirection() << " Vas a entrar al corredor oscuro" << endl;
-
-        cout << "\n----" << corridor.getName() << "----" << endl;
-        cout << corridor.getDescription() << endl;
-
-        //switch para direccion dentro de room
-        cout << "\nVes 4 esquinas a que direccion vas? (W/A/S/D) " << endl;
-        
-        char corridorChoice;
-        cin >> corridorChoice;
-        
-        Direction corridorDir(corridorChoice);
-
-        switch(corridorDir.getKey()) {
-            case 'W':
-            case 'w':
-                cout << "Te diriges hacia: " << corridorDir.getDirection() << endl;
-                cout << "Encuentras una Brujula en el suelo." << endl;
-                player.pickupCompass();
-                player.addScore(10);
-                break;
-            case 'A':
-            case 'a':
-                cout << "Te diriges hacia: " << corridorDir.getDirection() << endl;
-                cout << "encuentras una Ganzua oxidada en el suelo." << endl;
-                player.pickupLockpick();
-                player.addScore(5);
-                break;
-            case 'S':
-            case 's':
-                cout << "Sientes un frio penetrante: " << corridorDir.getDirection() << endl;
-                cout << "recibes -5 por ventisca de articuno." << endl;
-                player.takenDamage(5);
-
-                break;
-            case 'D':
-            case 'd':
-                cout << "Te diriges hacia: " << corridorDir.getDirection() << endl;
-                cout << "Encuentras una puerta bloqueada." << endl;
-                if(player.hasLockpickItem()) {
-                    cout << "Usas la Ganzua para abrir la puerta." << endl;
-                    cout << "Has escapado de la mazmorra!" << endl;
-                } else {
-                    cout << "Nesesitas algo para abrirla..." << endl;
+            if (entranceChoice == 'Q' || entranceChoice == 'q')
+            {
+                if (confirmQuit())
+                {
+                    Game::gameRunning = false;
                 }
-                break;
-
-        }
-        player.displayStatus();
-
-        Room treasureRoom("Sala del Tesoro", "Una sala brillante llena de oro y joyas.");
-
-        cout << "Te diriges la nueva sala: " << treasureRoom.getName() << endl;
-        cout << treasureRoom.getDescription() << endl;
-
-
-        cout << "Antes de pasar la puerta de entrada de la sala, te encuentras con el problema de q esta cerrada y no tienes la llave." << endl;
-        if(player.hasLockpickItem()) {
-            cout << "Usas la Ganzua para abrir la puerta? (S o N)" << endl;
-            
-            string userInput;
-
-            cin >> userInput; 
-
-            if( userInput == "s" && Lucky().throw_coin()) {
-
-                cout << "Tienes suerte! La puerta se abre sin problemas." << endl;
-                
-                cout << "Al entrar sientes un aire tibio que revitaliza tu ser" << endl;
-                player.fullHeal();
-                cout << "recibees una curacion completa" << endl;
-
-                cout << "Luteas la mazmorra con exito!" << endl;
-                player.addScore(50);
-                cout << "Has escapado de la mazmorra!" << endl;
-                 
-            } else if( userInput == "S") {
-
-                cout << "La Ganzua se rompe al intentar abrir la puerta." << endl;
-                player.takenDamage(10);
-                player.displayStatus();
-            }else {
-
-                cout << "Decides no usar la Ganzua y buscar otra salida." << endl;
+            }else
+            {
+                atEntrance = false;
             }
-
-        } else {
-            cout << "Nesesitas algo para abrirla..." << endl;
         }
 
-    }
-    else if(entranceDir.isValid() && (entranceDir.getKey() == 'S' || entranceDir.getKey() == 's')) {
-        cout << "Te diriges hacia: " << entranceDir.getDirection() << endl;
-        cout << "La pared esta bloqueada, cuida tu salud." << endl;
-        player.takenDamage(3);
+        Direction entranceDir(entranceChoice);
+
+        if (Game::gameRunning)
+        {
+
+            if (entranceDir.isValid() && entranceDir.getKey() == 'W' || entranceDir.getKey() == 'w')
+            {
+                bool inCorridor = true;
+                while (Game::gameRunning && inCorridor)
+                {
+                    cout << "Te diriges hacia: " << entranceDir.getDirection() << " Vas a entrar al corredor oscuro" << endl;
+
+                    cout << "\n----" << corridor.getName() << "----" << endl;
+                    cout << corridor.getDescription() << endl;
+
+                    // switch para direccion dentro de room
+                    cout << "\nVes 4 esquinas a que direccion vas? (W/A/S/D) " << endl;
+
+                    char corridorChoice;
+                    cin >> corridorChoice;
+
+                    Direction corridorDir(corridorChoice);
+
+                    switch (corridorDir.getKey())
+                    {
+                    case 'W':
+                    case 'w':
+                        cout << "Te diriges hacia: " << corridorDir.getDirection() << endl;
+                        cout << "Encuentras una Brujula en el suelo." << endl;
+                        player.pickupCompass();
+                        player.addScore(10);
+                        cout << "Vuelves a la sala en la que estabas, asustado por un ruido extraño" << endl;
+                        break;
+                    case 'A':
+                    case 'a':
+                        cout << "Te diriges hacia: " << corridorDir.getDirection() << endl;
+                        cout << "encuentras una Ganzua oxidada en el suelo." << endl;
+                        player.pickupLockpick();
+                        player.addScore(5);
+
+                        char letContinue;
+                        cout << "Avanzas mas al fondo por el pasillo (C)? o Prefieres devolverte por donde viniste (D)?";
+                        cin >> letContinue;
+
+                        if (letContinue == 'c' || letContinue == 'C')
+                        {
+
+                            inCorridor = false;
+                        }
+                        break;
+                    case 'S':
+                    case 's':
+                        cout << "Sientes un frio penetrante: " << corridorDir.getDirection() << endl;
+                        cout << "recibes -5 por ventisca de psyduck." << endl;
+                        player.takenDamage(5);
+
+                        cout << "Vuelves a la sala en la q estabas" << endl;
+
+                        break;
+                    case 'D':
+                    case 'd':
+                        cout << "Te diriges hacia: " << corridorDir.getDirection() << endl;
+                        cout << "Encuentras una puerta bloqueada." << endl;
+                        if (player.hasLockpickItem())
+                        {
+                            cout << "Usas la Ganzua para abrir la puerta." << endl;
+                            cout << "Has escapado de la mazmorra!" << endl;
+                            Game::gameRunning = false;
+                        }
+                        else
+                        {
+                            cout << "Nesesitas algo para abrirla..." << endl;
+                        }
+                        break;
+                    }
+                }
+
+                bool inTreasureRoom = true;
+                while (Game::gameRunning && inTreasureRoom)
+                {
+                    Room treasureRoom("Sala del Tesoro", "Una sala brillante llena de oro y joyas.");
+                    cout << "Te diriges hacia: " << treasureRoom.getName() << endl;
+                    cout << treasureRoom.getDescription() << endl;
+                    player.displayStatus();
+
+                    cout << "Antes de pasar la puerta de entrada de la sala, te encuentras con el problema de q esta cerrada y no tienes la llave." << endl;
+                    if (player.hasLockpickItem())
+                    {
+                        cout << "Usas la Ganzua para abrir la puerta? (S o N)" << endl;
+
+                        string userInput;
+
+                        cin >> userInput;
+
+                        if (userInput == "s" && Lucky().throw_coin())
+                        {
+
+                            cout << "Tienes suerte! La puerta se abre sin problemas." << endl;
+
+                            cout << "Al entrar sientes un aire tibio que revitaliza tu ser" << endl;
+                            player.fullHeal();
+                            cout << "recibes una curación completa" << endl;
+
+                            cout << "Luteas la mazmorra con exito!" << endl;
+                            player.addScore(50);
+                            cout << "Has escapado de la mazmorra!" << endl;
+                            Game::gameRunning = false;
+                        }
+                        else if (userInput == "S")
+                        {
+
+                            cout << "La Ganzua se rompe al intentar abrir la puerta." << endl;
+                            player.takenDamage(10);
+                        }
+                        else
+                        {
+
+                            cout << "Decides no usar la Ganzua y eres desmayado, despertando en el inicio de la mazmorra." << endl;
+                            Game::gameRunning = false;
+                        }
+                    }
+                    else
+                    {
+                        cout << "Nesesitas algo para abrirla..." << endl;
+                        cout << "Escuchas una voz muy fuerte \"TU NO DEBERIAS ESTAR AQUI...\"" << endl;
+                        cout << "despues de eso te desmayas por un chillido super agudo, al despertar estas en la entrada de la mazmorra";
+                        inTreasureRoom = false;
+                    }
+                }
+            }
+            else if (entranceDir.isValid() && (entranceDir.getKey() == 'S' || entranceDir.getKey() == 's'))
+            {
+                cout << "Te diriges hacia: " << entranceDir.getDirection() << endl;
+                cout << "La pared esta bloqueada, cuida tu salud." << endl;
+                player.takenDamage(3);
+                player.displayStatus();
+                cout << "Por un holor fuerte caes desmayado, al levantarte estas de nuevo en la primer entrada" << endl;
+            }
+            else
+            {
+                cout << "Direccion invalida. No puedes avanzar." << endl;
+            }
+        }
+        cout << "\nAventura terminada!" << endl;
         player.displayStatus();
-    }
-    else {
-        cout << "Direccion invalida. No puedes avanzar." << endl;
-    }
 
-
+        cout << "\nPresiona enter para finalizar!" << endl;
+        cin.ignore();
+        cin.get();
+    }
     
-
-    cout << "\nAventura terminada!" << endl;
-    player.displayStatus();
-
-    cout << "\nPresiona enter para finalizar!" << endl;
-    cin.ignore();
-    cin.get();
 }
