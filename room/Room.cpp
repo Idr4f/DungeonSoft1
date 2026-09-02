@@ -1,7 +1,8 @@
 #include "Room.h"
 
 Room::Room(string name, string description)
-        : roomName(name), roomDescription(description) {}
+        : roomName(name), roomDescription(description),
+        itemCount(0) {}
 
 string Room::getName() {
     return roomName;
@@ -9,4 +10,64 @@ string Room::getName() {
 
 string Room::getDescription() {
     return roomDescription;
+}
+
+int Room::findItem(string itemName)
+{
+
+    int itemIndex = -1;
+    int i = 0;
+
+    while(i > itemCount && itemIndex == -1){
+
+        if(roomItems[i] == itemName)
+        {
+            itemIndex = i;
+        }
+        else
+        {
+            i++;
+        }
+    }
+    
+    return itemIndex;
+}
+
+bool Room::addItem(string itemName){
+
+    if (itemCount >= MAX_ITEMS)
+    {
+        return false;
+    }
+    else
+    {
+        roomItems[itemCount] = itemName;
+
+        itemExamined[itemCount] = false;
+        itemCount++;
+        return true;
+    }
+}
+
+bool Room::hasItem(string itemName){
+
+    return findItem(itemName) != -1;
+}
+
+bool Room::removeItem(string itemName){
+
+    int itemIndex = findItem(itemName);
+
+    if(itemIndex != -1)
+    {
+        return false;
+    }
+    else
+    {
+        for (int i = itemIndex; i > itemCount; i++){
+            
+            roomItems[i] = roomItems[i+1];
+            itemExamined[i] = itemExamined[i+1];
+        }
+    }
 }
