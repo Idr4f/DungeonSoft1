@@ -24,13 +24,27 @@ void Player::heal(int amount) { playerHealth = playerHealth + amount; }
 void Player::takeDamage(int damage) { playerHealth = playerHealth - damage; }
 void Player::addScore(int points) { playerScore = playerScore + points; }
 
-void Player::pickUpLockpick() {
-    playerHasLockpick = true;
-    playerScore = playerScore + 1;
+bool Player::pickUpLockpick() {
+    if (!playerHasLockpick)
+    {
+        playerHasLockpick = true;
+        playerScore = playerScore + 1;
+        return true;
+    }
+
+    return false;
+    
 }
 
-void Player::pickUpCompass() {
-    playerHasCompass = true;
+bool Player::pickUpCompass() {
+    if (!playerHasCompass)
+    {
+        playerHasCompass = true;
+        return true;
+    }
+
+    return false;
+    
 }
 
 void Player::displayStatus() {

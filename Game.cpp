@@ -50,18 +50,25 @@ void Game::examine(Room& room, string objectName, string foundItem, ItemReward r
         story.show(OBJECT_CLOSED, objectName);
         room.markAsExamined(objectName);
     }
-    else if (room.hasItem(foundItem)) {
-        story.show(OBJECT_EXAMINED, objectName);
-        story.show(ITEM_FOUND, foundItem);
-
+    else if(foundItem != "")
+    {
+        bool itemCollected = true;
+        
         if (reward == LOCKPICK_REWARD) {
-            player.pickUpLockpick();
+            
+            itemCollected = player.pickUpLockpick();
+        }
+
+        if (itemCollected){
+
+            story.show(ITEM_FOUND, foundItem);
+            story.show(OBJECT_EXAMINED, objectName);
+            story.show(ITEM_COLLECTED, foundItem);
+            room.markAsExamined(objectName);
         }
 
         room.removeItem(foundItem);
 
-        story.show(ITEM_COLLECTED, foundItem);
-        room.markAsExamined(objectName);
     }
     else {
         story.show(NOTHING_FOUND, objectName);
@@ -141,12 +148,10 @@ void Game::run() {
             switch (direction.getKey()) {
             case 'W':
             case 'w':
-                if (!player.hasCompassItem()) {
-                    story.show(ITEM_FOUND, "una brujula");
-                    player.pickUpCompass();
-                    story.show(ITEM_COLLECTED, "una brujula");
-                }
-                else {
+                if (player.pickUpCompass()){
+                    story.show(ITEM_FOUND, "Una Brujula");
+                    story.show(ITEM_COLLECTED, "Una Brujula");
+                }else{
                     story.show(NOTHING_FOUND, "el camino superior");
                 }
                 break;

@@ -25,7 +25,7 @@ public:
     void heal(int amount);
     void takeDamage(int damage);
     void addScore(int points);
-    void pickUpLockpick();
-    void pickUpCompass();
+    bool pickUpLockpick();
+    bool pickUpCompass();
     void displayStatus();
 };
